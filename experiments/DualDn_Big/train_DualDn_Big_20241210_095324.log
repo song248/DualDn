@@ -1,0 +1,183 @@
+2024-12-10 09:53:24,338 INFO: 
+  name: DualDn_Big
+  model_type: DualDn_Model
+  scale: 1
+  num_gpu: 1
+  manual_seed: 100
+  datasets:[
+    train:[
+      name: TrainSet
+      type: DualDn_Dataset
+      file_from_list: False
+      dataset_type: Synthetic
+      data_path: datasets/fivek
+      dataset_enlarge_ratio: 1
+      patch_size: 256
+      syn_noise:[
+        prepocess: False
+        noise_model: gaussian_poisson
+        noise_params: 4
+        noise_level: None
+        K_min: 0.0002
+        K_max: 0.02
+        saturation_level: 1.0
+      ]
+      syn_isp:[
+        alpha: None
+        alpha_min: 0
+        alpha_max: 1
+        final_stage: tone_mapping
+        demosaic_type: AHD
+        gamma_type: Rec709
+      ]
+      std: None
+      mean: None
+      padding: True
+      random_crop: True
+      geometric_augs: True
+      io_backend:[
+        type: disk
+      ]
+      use_shuffle: True
+      num_worker_per_gpu: 8
+      batch_size_per_gpu: 2
+      prefetch_mode: None
+      pin_memory: False
+      phase: train
+      seed: 100
+    ]
+    val:[
+      name: ValSet
+      type: DualDn_Dataset
+      file_from_list: True
+      val_datasets:[
+        Synthetic:[
+          mode: True
+          data_path: datasets/fivek
+        ]
+        Real_captured:[
+          mode: False
+          BGU: True
+          data_path: datasets/real_capture
+        ]
+        DND:[
+          mode: False
+          data_path: datasets/DND
+        ]
+      ]
+      patch_size: 512
+      syn_noise:[
+        prepocess: False
+        noise_model: gaussian_poisson
+        noise_params: 4
+        noise_level: [0.002, 0.02]
+        saturation_level: 1.0
+      ]
+      syn_isp:[
+        alpha: [0, 0.5]
+        final_stage: tone_mapping
+        demosaic_type: AHD
+        gamma_type: Rec709
+      ]
+      window_size: 8
+      crop_border: 16
+      central_crop: False
+      io_backend:[
+        type: disk
+      ]
+      phase: val
+      seed: 100
+    ]
+  ]
+  network:[
+    type: DualDn
+    with_noise_map: True
+    c: 64
+    backbone_type: Restormer
+    bgu_ratio: 8
+    bias: False
+    LayerNorm_type: BiasFree
+  ]
+  path:[
+    pretrain_network: None
+    strict_load: True
+    resume_state: None
+    log: /home/song/Desktop/DualDn/experiments/DualDn_Big
+    experiments_root: /home/song/Desktop/DualDn/experiments/DualDn_Big
+    models: /home/song/Desktop/DualDn/experiments/DualDn_Big/models
+    visualization: /home/song/Desktop/DualDn/experiments/DualDn_Big/visualization
+    training_states: /home/song/Desktop/DualDn/experiments/DualDn_Big/training_states
+  ]
+  train:[
+    total_iter: 300000
+    warmup_iter: -1
+    use_grad_clip: True
+    ft_tsa_only: 0
+    scheduler:[
+      type: CosineAnnealingRestartCyclicLR
+      periods: [92000, 208000]
+      restart_weights: [1, 1]
+      eta_mins: [0.0003, 1e-06]
+    ]
+    optim_g:[
+      type: AdamW
+      lr: 0.0003
+      betas: [0.9, 0.999]
+    ]
+    loss_type: Dual
+    pixel_opt:[
+      type: L1Loss
+      loss_weight: 1
+      reduction: mean
+    ]
+  ]
+  val:[
+    val_freq: 50000.0
+    save_img: True
+    rgb2bgr: True
+    use_img: False
+    metrics:[
+      psnr:[
+        type: calculate_psnr
+        crop_border: 0
+        test_y_channel: False
+      ]
+      ssim:[
+        type: calculate_ssim
+        crop_border: 0
+        test_y_channel: False
+      ]
+      niqe:[
+        type: calculate_niqe
+        crop_border: 0
+        convert_to: y
+      ]
+      lpips:[
+        type: calculate_lpips
+        crop_border: 0
+        test_y_channel: False
+        spatial: False
+      ]
+    ]
+  ]
+  logger:[
+    print_freq: 1000
+    save_checkpoint_freq: 50000.0
+    use_tb_logger: True
+    wandb:[
+      project: None
+      resume_id: None
+    ]
+  ]
+  dist_params:[
+    backend: nccl
+    port: 29500
+  ]
+  is_train: True
+  opt_path: ./options/DualDn_Big.yml
+  root_path: /home/song/Desktop/DualDn
+  dist: False
+  rank: 0
+  world_size: 1
+  auto_resume: False
+
