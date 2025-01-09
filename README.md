@@ -1,7 +1,7 @@
 세아 SSIM: 0.95이상 달성 위한  
 https://github.com/song248/Seah-AI-solution-material_predict/tree/feature/taekyung/regression
 
-![result](./DualDn Result.png)
+<img src = "DualDn_ Result.png"  width="80%">
 
 # [ECCV2024] DualDn: <br> Dual-domain Denoising via Differentiable ISP
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/dualdn-dual-domain-denoising-via/image-denoising-on-dnd)](https://paperswithcode.com/sota/image-denoising-on-dnd?p=dualdn-dual-domain-denoising-via)
